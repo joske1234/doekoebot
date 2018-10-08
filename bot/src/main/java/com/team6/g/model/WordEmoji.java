@@ -120,4 +120,15 @@ public class WordEmoji {
             return wordEmoji;
         }
     }
+
+    @Override
+    public String toString() {
+        return "WordEmoji{" +
+                "id=" + id +
+                ", word=" + word +
+                ", emoji=" + emoji +
+                ", addedBy=" + addedBy +
+                ", dateAdded=" + dateAdded +
+                '}';
+    }
 }

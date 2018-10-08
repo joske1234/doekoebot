@@ -44,4 +44,13 @@ public class AbstractWordType {
     void dateAdded() {
         this.dateAdded = this.dateAdded = new Date();
     }
+
+    @Override
+    public String toString() {
+        return "AbstractWordType{" +
+                "id=" + id +
+                ", word='" + word + '\'' +
+                ", dateAdded=" + dateAdded +
+                '}';
+    }
 }

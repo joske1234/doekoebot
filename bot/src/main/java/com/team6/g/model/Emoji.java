@@ -75,4 +75,13 @@ public class Emoji {
             return emojiObj;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Emoji{" +
+                "id=" + id +
+                ", emoji='" + emoji + '\'' +
+                ", dateAdded=" + dateAdded +
+                '}';
+    }
 }
