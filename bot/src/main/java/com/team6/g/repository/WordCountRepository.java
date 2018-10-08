@@ -22,6 +22,9 @@ public interface WordCountRepository extends JpaRepository<WordCount, Long> {
 
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w GROUP BY w.user, w.word ORDER BY count(w) DESC")
     List<WordCountStatistics> findStatistics();
+
+    @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.word = ?1 GROUP BY w.user, w.word ORDER BY count(w) DESC")
+    List<WordCountStatistics> findStatisticsByWord(Word word);
     
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.word = ?1 GROUP BY w.user ORDER BY count(w) DESC")
     List<WordCountStatistics> findAllUserStatisticsGroupByUser(Word word);

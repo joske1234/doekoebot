@@ -47,6 +47,11 @@ public class WordCommandHelper extends AbstractCommand {
 
             User statsUser = userRepository.findByName(userStr);
             Word word = wordRepository.findByWord(wordStr);
+
+            // !word stats all <word>
+            if (args.size() == 4 && (word != null && "all".equals(userStr))) {
+                printAllWordStats(slackChannel, word);
+            }
             
             // !word stats maikel test1
             if (args.size() == 4 && (word != null && statsUser != null)) {
@@ -104,7 +109,11 @@ public class WordCommandHelper extends AbstractCommand {
             }
         }
     }
-    
+
+    private void printAllWordStats(SlackChannel slackChannel, Word word) {
+        printWordCountStatisticsList(wordCountRepository.findStatisticsByWord(word), slackChannel, null);
+    }
+
     private void printTopStats(SlackChannel slackChannel, Integer top) {
         if (top > 20 || top < 1) {
             sendMessage(slackChannel, "uh no?");

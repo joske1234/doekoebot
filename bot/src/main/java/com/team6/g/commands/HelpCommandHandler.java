@@ -23,6 +23,7 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("-- words --\n");
         sb.append("!word stats top <0-25>\n");
         sb.append("!word stats all\n");
+        sb.append("!word stats all <word>\n");
         sb.append("!word stats <user> (optional: <word>)\n");
         sb.append("!word list\n");
         sb.append("!word <add|remove>\n");
