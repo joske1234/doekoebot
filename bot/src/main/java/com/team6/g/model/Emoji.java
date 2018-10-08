@@ -18,12 +18,12 @@ public class Emoji {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "EMOJI_ID")
     private Long id;
-    
+
     @Column(name = "EMOJI", unique = true)
     private String emoji;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "DATE_ADDED", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "DATE_ADDED", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date dateAdded;
 
     public Long getId() {
@@ -46,7 +46,7 @@ public class Emoji {
     void dateAdded() {
         this.dateAdded = this.dateAdded = new Date();
     }
-    
+
     public static final class EmojiBuilder {
         private String emoji;
         private Date dateAdded;

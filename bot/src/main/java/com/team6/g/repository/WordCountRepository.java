@@ -1,9 +1,9 @@
 package com.team6.g.repository;
 
 import com.team6.g.model.User;
-import com.team6.g.model.Word;
 import com.team6.g.model.WordCount;
 import com.team6.g.model.WordCountStatistics;
+import com.team6.g.model.WordTypeWordCount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,20 +12,20 @@ import java.util.List;
 
 @Repository
 public interface WordCountRepository extends JpaRepository<WordCount, Long> {
-    List<WordCount> findByWord(Word word);
+    List<WordCount> findByWord(WordTypeWordCount word);
 
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.user = ?1 GROUP BY w.user, w.word ORDER BY count(w) DESC")
     List<WordCountStatistics> findStatisticsByUser(User user);
 
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.user = ?1 AND w.word = ?2 GROUP BY w.user, w.word ORDER BY count(w) DESC")
-    List<WordCountStatistics> findStatisticsByUserAndWord(User user, Word word);
+    List<WordCountStatistics> findStatisticsByUserAndWord(User user, WordTypeWordCount word);
 
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w GROUP BY w.user, w.word ORDER BY count(w) DESC")
     List<WordCountStatistics> findStatistics();
 
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.word = ?1 GROUP BY w.user, w.word ORDER BY count(w) DESC")
-    List<WordCountStatistics> findStatisticsByWord(Word word);
+    List<WordCountStatistics> findStatisticsByWord(WordTypeWordCount word);
     
     @Query("SELECT new com.team6.g.model.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.word = ?1 GROUP BY w.user ORDER BY count(w) DESC")
-    List<WordCountStatistics> findAllUserStatisticsGroupByUser(Word word);
+    List<WordCountStatistics> findAllUserStatisticsGroupByUser(WordTypeWordCount word);
 }

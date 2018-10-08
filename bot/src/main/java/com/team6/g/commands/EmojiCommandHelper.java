@@ -2,12 +2,12 @@ package com.team6.g.commands;
 
 import com.team6.g.model.Emoji;
 import com.team6.g.model.User;
-import com.team6.g.model.Word;
 import com.team6.g.model.WordEmoji;
+import com.team6.g.model.WordTypeEmoji;
 import com.team6.g.repository.EmojiRepository;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordEmojiRepository;
-import com.team6.g.repository.WordRepository;
+import com.team6.g.repository.WordTypeEmojiRepository;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class EmojiCommandHelper extends AbstractCommand {
     WordEmojiRepository wordEmojiRepository;
 
     @Autowired
-    WordRepository wordRepository;
+    WordTypeEmojiRepository wordTypeEmojiRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -47,10 +47,10 @@ public class EmojiCommandHelper extends AbstractCommand {
             sendMessage(slackChannel, "*fout* het is !emoji <add|remove> word emoji");
             return;
         }
-        
-        emoji = emoji.substring(1, emoji.length() -1);
+
+        emoji = emoji.substring(1, emoji.length() - 1);
         Emoji emojiObj = emojiRepository.findByEmoji(emoji);
-        Word wordObj = wordRepository.findByWord(word);
+        WordTypeEmoji wordObj = wordTypeEmojiRepository.findByWord(word);
 
         if ("add".equals(command)) {
             handleAddCommand(slackChannel, word, emoji, emojiObj, wordObj, user);
@@ -71,15 +71,21 @@ public class EmojiCommandHelper extends AbstractCommand {
         }
     }
 
-    private void handleAddCommand(SlackChannel slackChannel, String word, String emoji, Emoji emojiObj, Word wordObj, User user) {
+    private void handleAddCommand(SlackChannel slackChannel, String word, String emoji, Emoji emojiObj, WordTypeEmoji wordObj, User user) {
         if (emojiObj == null) {
             emojiObj = new Emoji.EmojiBuilder().withEmoji(emoji).build();
             emojiRepository.save(emojiObj);
         }
 
         if (wordObj == null) {
-            wordObj = new Word.WordBuilder().withWord(word).build();
-            wordRepository.save(wordObj);
+            wordObj = new WordTypeEmoji();
+            wordObj.setWord(word);
+
+            wordTypeEmojiRepository.save(wordObj);
+        }
+
+        if (user == null) {
+            logger.error("Could not create emoji with user: '{}'", user.getName());
         }
 
         wordEmojiRepository.save(new WordEmoji.WordEmojiBuilder()
@@ -88,7 +94,7 @@ public class EmojiCommandHelper extends AbstractCommand {
                 .withWord(wordObj)
                 .build());
 
-        logger.info("new word with word: '{}' and emoji: '{}' added by : '{}'", word, emoji, user.getName());
+        logger.info("added word with word: '{}' and emoji: '{}' added by : '{}'", word, emoji, user.getName());
 
         sendMessage(slackChannel, String.format("added new word: '%s' with emoji: :%s:", word, emoji));
     }

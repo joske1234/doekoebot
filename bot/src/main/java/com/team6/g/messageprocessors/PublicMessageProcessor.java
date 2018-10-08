@@ -5,13 +5,14 @@ import com.team6.g.config.SlackConfig;
 import com.team6.g.model.Emoji;
 import com.team6.g.model.History;
 import com.team6.g.model.User;
-import com.team6.g.model.Word;
 import com.team6.g.model.WordCount;
+import com.team6.g.model.WordTypeWordCount;
 import com.team6.g.repository.HistoryRepository;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
 import com.team6.g.repository.WordEmojiRepository;
-import com.team6.g.repository.WordRepository;
+import com.team6.g.repository.WordTypeEmojiRepository;
+import com.team6.g.repository.WordTypeWordCountRepository;
 import com.team6.g.util.MessageUtil;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
@@ -40,7 +41,10 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
     SlackConfig slackConfig;
     
     @Autowired
-    WordRepository wordRepository;
+    WordTypeEmojiRepository wordTypeEmojiRepository;
+    
+    @Autowired
+    WordTypeWordCountRepository wordTypeWordCountRepository;
     
     @Autowired
     WordCountRepository wordCountRepository;
@@ -51,7 +55,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         
         if (user == null) {
             logger.info("creating user: '{}'", event.getSender().getUserName());
-            userRepository.save(new User.UserBuilder().withName(event.getSender().getUserName()).build());
+            user = userRepository.save(new User.UserBuilder().withName(event.getSender().getUserName()).build());
         }
         
         if (message.startsWith("!")) {
@@ -102,7 +106,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
     }
 
     private void findWordsInSentence(User user, String message) {
-        wordRepository.findAll().stream().forEach(word -> {
+        wordTypeWordCountRepository.findAll().stream().forEach(word -> {
             if (word.getWord().split(" ").length > 1 && message.toLowerCase().contains(word.getWord().toLowerCase())) {
                 addWordStatistics(word, user);
             } else {
@@ -116,7 +120,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         });
     }
     
-    private void addWordStatistics(Word word, User user) {
+    private void addWordStatistics(WordTypeWordCount word, User user) {
         WordCount wordCount = new WordCount.WordCountBuilder().withWord(word).withUser(user).build();
 
         wordCountRepository.save(wordCount);

@@ -1,11 +1,11 @@
 package com.team6.g.commands;
 
 import com.team6.g.model.User;
-import com.team6.g.model.Word;
 import com.team6.g.model.WordCountStatistics;
+import com.team6.g.model.WordTypeWordCount;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
-import com.team6.g.repository.WordRepository;
+import com.team6.g.repository.WordTypeWordCountRepository;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class WordCommandHelper extends AbstractCommand {
     WordCountRepository wordCountRepository;
 
     @Autowired
-    WordRepository wordRepository;
+    WordTypeWordCountRepository wordTypeWordCountRepository;
 
     @Override
     public void handle(SlackChannel slackChannel, User user, List<String> args) {
@@ -46,7 +46,7 @@ public class WordCommandHelper extends AbstractCommand {
             }
 
             User statsUser = userRepository.findByName(userStr);
-            Word word = wordRepository.findByWord(wordStr);
+            WordTypeWordCount word = wordTypeWordCountRepository.findByWord(wordStr);
 
             // !word stats all <word>
             if (args.size() == 4 && (word != null && "all".equals(userStr))) {
@@ -68,7 +68,7 @@ public class WordCommandHelper extends AbstractCommand {
         
         // !word list
         if ("list".equals(args.get(1))) {
-            List<Word> wordList = wordRepository.findAll();
+            List<WordTypeWordCount> wordList = wordTypeWordCountRepository.findAll();
             StringBuilder sb = new StringBuilder();
 
             wordList.forEach(word -> sb.append(
@@ -76,33 +76,40 @@ public class WordCommandHelper extends AbstractCommand {
             ));
 
             sendMessage(slackChannel, String.format("Words list (%d words): %s", wordList.size(), sb.toString().substring(0, sb.toString().length() - 2)));
+            return;
         }
 
         // !word add
-        if ("add".equals(args.get(1))) {
-            Word word = wordRepository.findByWord(args.get(2));
+        if ("add".equals(args.get(1)) && args.size() == 3) {
+            WordTypeWordCount word = wordTypeWordCountRepository.findByWord(args.get(2));
 
             if (word == null) {
-                wordRepository.save(new Word.WordBuilder().withWord(args.get(2)).build());
+                logger.info("added new word with text: '{}'", args.get(2));
+                WordTypeWordCount wordTypeWordCount = new WordTypeWordCount();
+                wordTypeWordCount.setWord(args.get(2));
+                
+                wordTypeWordCountRepository.save(wordTypeWordCount);
                 sendMessage(slackChannel, String.format("Word: `%s` successfully added", args.get(2)));
             } else {
                 sendMessage(slackChannel, String.format("Word already exists, n00b"));
             }
+            return;
         }
         
         // !word search
-        if ("search".equals(args.get(1))) {
-            List<Word> word = wordRepository.findByWordContaining(args.get(2));
+        if ("search".equals(args.get(1)) && args.size() == 3) {
+            List<WordTypeWordCount> word = wordTypeWordCountRepository.findByWordContaining(args.get(2));
             
             sendMessage(slackChannel, String.format("debug mode yo: %s", word.toString()));
+            return;
         }
         
         // !word remove
         if ("remove".equals(args.get(1)) && "maikel".equals(user.getName())) {
-            Word word = wordRepository.findByWord(args.get(2));
+            WordTypeWordCount word = wordTypeWordCountRepository.findByWord(args.get(2));
             
             if (word != null) {
-                wordRepository.delete(word);
+                wordTypeWordCountRepository.delete(word);
                 sendMessage(slackChannel, String.format("%s deleted", word.getWord()));
             } else {
                 sendMessage(slackChannel, "nee");
@@ -110,7 +117,7 @@ public class WordCommandHelper extends AbstractCommand {
         }
     }
 
-    private void printAllWordStats(SlackChannel slackChannel, Word word) {
+    private void printAllWordStats(SlackChannel slackChannel, WordTypeWordCount word) {
         printWordCountStatisticsList(wordCountRepository.findStatisticsByWord(word), slackChannel, null);
     }
 
@@ -127,7 +134,7 @@ public class WordCommandHelper extends AbstractCommand {
         printWordCountStatisticsList(wordCountRepository.findStatistics(), slackChannel, null);
     }
     
-    private void printUserWordStats(SlackChannel slackChannel, User user, Word word) {
+    private void printUserWordStats(SlackChannel slackChannel, User user, WordTypeWordCount word) {
         List<WordCountStatistics> wordCountStatisticsList = wordCountRepository.findAllUserStatisticsGroupByUser(word);
         int position = 1;
         
