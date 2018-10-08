@@ -6,7 +6,7 @@ import com.team6.g.model.Emoji;
 import com.team6.g.model.History;
 import com.team6.g.model.User;
 import com.team6.g.model.WordCount;
-import com.team6.g.model.WordTypeWordCount;
+import com.team6.g.model.WordTypeWordTypeCount;
 import com.team6.g.repository.HistoryRepository;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
@@ -120,7 +120,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         });
     }
     
-    private void addWordStatistics(WordTypeWordCount word, User user) {
+    private void addWordStatistics(WordTypeWordTypeCount word, User user) {
         WordCount wordCount = new WordCount.WordCountBuilder().withWord(word).withUser(user).build();
 
         wordCountRepository.save(wordCount);

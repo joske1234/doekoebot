@@ -5,5 +5,5 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "WORD_TYPE_WORDCOUNT")
-public class WordTypeWordCount extends AbstractWord {
+public class WordTypeWordTypeCount extends AbstractWordType {
 }

@@ -27,7 +27,7 @@ public class WordCount {
 
     @OneToOne
     @JoinColumn(name = "WORD_ID")
-    private WordTypeWordCount word;
+    private WordTypeWordTypeCount word;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "DATE_ADDED", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -49,11 +49,11 @@ public class WordCount {
         this.user = user;
     }
 
-    public WordTypeWordCount getWord() {
+    public WordTypeWordTypeCount getWord() {
         return word;
     }
 
-    public void setWord(WordTypeWordCount word) {
+    public void setWord(WordTypeWordTypeCount word) {
         this.word = word;
     }
 
@@ -64,7 +64,7 @@ public class WordCount {
 
     public static final class WordCountBuilder {
         private User user;
-        private WordTypeWordCount word;
+        private WordTypeWordTypeCount word;
         private Date dateAdded;
 
         public WordCountBuilder() {
@@ -79,7 +79,7 @@ public class WordCount {
             return this;
         }
 
-        public WordCountBuilder withWord(WordTypeWordCount word) {
+        public WordCountBuilder withWord(WordTypeWordTypeCount word) {
             this.word = word;
             return this;
         }

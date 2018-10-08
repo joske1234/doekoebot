@@ -2,10 +2,10 @@ package com.team6.g.model;
 
 public class AbstractStatistics {
     private User user;
-    private WordTypeWordCount word;
+    private WordTypeWordTypeCount word;
     private long count;
 
-    public AbstractStatistics(User user, WordTypeWordCount word, long count) {
+    public AbstractStatistics(User user, WordTypeWordTypeCount word, long count) {
         this.user = user;
         this.word = word;
         this.count = count;
@@ -19,11 +19,11 @@ public class AbstractStatistics {
         this.user = user;
     }
 
-    public WordTypeWordCount getWord() {
+    public WordTypeWordTypeCount getWord() {
         return word;
     }
 
-    public void setWord(WordTypeWordCount word) {
+    public void setWord(WordTypeWordTypeCount word) {
         this.word = word;
     }
 

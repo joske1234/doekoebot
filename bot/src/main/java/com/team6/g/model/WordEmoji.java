@@ -26,7 +26,7 @@ public class WordEmoji {
 
     @OneToOne
     @JoinColumn(name = "WORD_ID")
-    private WordTypeEmoji word;
+    private WordTypeTypeEmoji word;
 
     @OneToOne
     @JoinColumn(name = "EMOJI_ID")
@@ -48,11 +48,11 @@ public class WordEmoji {
         this.id = id;
     }
 
-    public WordTypeEmoji getWord() {
+    public WordTypeTypeEmoji getWord() {
         return word;
     }
 
-    public void setWord(WordTypeEmoji word) {
+    public void setWord(WordTypeTypeEmoji word) {
         this.word = word;
     }
 
@@ -79,7 +79,7 @@ public class WordEmoji {
 
 
     public static final class WordEmojiBuilder {
-        private WordTypeEmoji word;
+        private WordTypeTypeEmoji word;
         private Emoji emoji;
         private User addedBy;
         private Date dateAdded;
@@ -91,7 +91,7 @@ public class WordEmoji {
             return new WordEmojiBuilder();
         }
 
-        public WordEmojiBuilder withWord(WordTypeEmoji word) {
+        public WordEmojiBuilder withWord(WordTypeTypeEmoji word) {
             this.word = word;
             return this;
         }

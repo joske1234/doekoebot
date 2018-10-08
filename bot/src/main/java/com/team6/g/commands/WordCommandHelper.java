@@ -2,7 +2,7 @@ package com.team6.g.commands;
 
 import com.team6.g.model.User;
 import com.team6.g.model.WordCountStatistics;
-import com.team6.g.model.WordTypeWordCount;
+import com.team6.g.model.WordTypeWordTypeCount;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
 import com.team6.g.repository.WordTypeWordCountRepository;
@@ -46,7 +46,7 @@ public class WordCommandHelper extends AbstractCommand {
             }
 
             User statsUser = userRepository.findByName(userStr);
-            WordTypeWordCount word = wordTypeWordCountRepository.findByWord(wordStr);
+            WordTypeWordTypeCount word = wordTypeWordCountRepository.findByWord(wordStr);
 
             // !word stats all <word>
             if (args.size() == 4 && (word != null && "all".equals(userStr))) {
@@ -68,7 +68,7 @@ public class WordCommandHelper extends AbstractCommand {
         
         // !word list
         if ("list".equals(args.get(1))) {
-            List<WordTypeWordCount> wordList = wordTypeWordCountRepository.findAll();
+            List<WordTypeWordTypeCount> wordList = wordTypeWordCountRepository.findAll();
             StringBuilder sb = new StringBuilder();
 
             wordList.forEach(word -> sb.append(
@@ -81,11 +81,11 @@ public class WordCommandHelper extends AbstractCommand {
 
         // !word add
         if ("add".equals(args.get(1)) && args.size() == 3) {
-            WordTypeWordCount word = wordTypeWordCountRepository.findByWord(args.get(2));
+            WordTypeWordTypeCount word = wordTypeWordCountRepository.findByWord(args.get(2));
 
             if (word == null) {
                 logger.info("added new word with text: '{}'", args.get(2));
-                WordTypeWordCount wordTypeWordCount = new WordTypeWordCount();
+                WordTypeWordTypeCount wordTypeWordCount = new WordTypeWordTypeCount();
                 wordTypeWordCount.setWord(args.get(2));
                 
                 wordTypeWordCountRepository.save(wordTypeWordCount);
@@ -98,7 +98,7 @@ public class WordCommandHelper extends AbstractCommand {
         
         // !word search
         if ("search".equals(args.get(1)) && args.size() == 3) {
-            List<WordTypeWordCount> word = wordTypeWordCountRepository.findByWordContaining(args.get(2));
+            List<WordTypeWordTypeCount> word = wordTypeWordCountRepository.findByWordContaining(args.get(2));
             
             sendMessage(slackChannel, String.format("debug mode yo: %s", word.toString()));
             return;
@@ -106,7 +106,7 @@ public class WordCommandHelper extends AbstractCommand {
         
         // !word remove
         if ("remove".equals(args.get(1)) && "maikel".equals(user.getName())) {
-            WordTypeWordCount word = wordTypeWordCountRepository.findByWord(args.get(2));
+            WordTypeWordTypeCount word = wordTypeWordCountRepository.findByWord(args.get(2));
             
             if (word != null) {
                 wordTypeWordCountRepository.delete(word);
@@ -117,7 +117,7 @@ public class WordCommandHelper extends AbstractCommand {
         }
     }
 
-    private void printAllWordStats(SlackChannel slackChannel, WordTypeWordCount word) {
+    private void printAllWordStats(SlackChannel slackChannel, WordTypeWordTypeCount word) {
         printWordCountStatisticsList(wordCountRepository.findStatisticsByWord(word), slackChannel, null);
     }
 
@@ -134,7 +134,7 @@ public class WordCommandHelper extends AbstractCommand {
         printWordCountStatisticsList(wordCountRepository.findStatistics(), slackChannel, null);
     }
     
-    private void printUserWordStats(SlackChannel slackChannel, User user, WordTypeWordCount word) {
+    private void printUserWordStats(SlackChannel slackChannel, User user, WordTypeWordTypeCount word) {
         List<WordCountStatistics> wordCountStatisticsList = wordCountRepository.findAllUserStatisticsGroupByUser(word);
         int position = 1;
         

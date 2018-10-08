@@ -3,7 +3,7 @@ package com.team6.g.commands;
 import com.team6.g.model.Emoji;
 import com.team6.g.model.User;
 import com.team6.g.model.WordEmoji;
-import com.team6.g.model.WordTypeEmoji;
+import com.team6.g.model.WordTypeTypeEmoji;
 import com.team6.g.repository.EmojiRepository;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordEmojiRepository;
@@ -50,7 +50,7 @@ public class EmojiCommandHelper extends AbstractCommand {
 
         emoji = emoji.substring(1, emoji.length() - 1);
         Emoji emojiObj = emojiRepository.findByEmoji(emoji);
-        WordTypeEmoji wordObj = wordTypeEmojiRepository.findByWord(word);
+        WordTypeTypeEmoji wordObj = wordTypeEmojiRepository.findByWord(word);
 
         if ("add".equals(command)) {
             handleAddCommand(slackChannel, word, emoji, emojiObj, wordObj, user);
@@ -71,14 +71,14 @@ public class EmojiCommandHelper extends AbstractCommand {
         }
     }
 
-    private void handleAddCommand(SlackChannel slackChannel, String word, String emoji, Emoji emojiObj, WordTypeEmoji wordObj, User user) {
+    private void handleAddCommand(SlackChannel slackChannel, String word, String emoji, Emoji emojiObj, WordTypeTypeEmoji wordObj, User user) {
         if (emojiObj == null) {
             emojiObj = new Emoji.EmojiBuilder().withEmoji(emoji).build();
             emojiRepository.save(emojiObj);
         }
 
         if (wordObj == null) {
-            wordObj = new WordTypeEmoji();
+            wordObj = new WordTypeTypeEmoji();
             wordObj.setWord(word);
 
             wordTypeEmojiRepository.save(wordObj);

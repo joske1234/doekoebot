@@ -11,7 +11,7 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 @MappedSuperclass
-public class AbstractWord {
+public class AbstractWordType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "WORD_ID")

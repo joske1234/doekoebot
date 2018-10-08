@@ -5,6 +5,5 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "WORD_TYPE_EMOJI")
-public class WordTypeEmoji extends AbstractWord {
-    
+public class WordTypeTypeEmoji extends AbstractWordType {
 }
