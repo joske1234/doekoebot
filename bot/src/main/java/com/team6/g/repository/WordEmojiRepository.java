@@ -18,10 +18,10 @@ public interface WordEmojiRepository extends JpaRepository<WordEmoji, Long> {
     List<WordEmoji> findAll();
 
     @Override
-    @CacheEvict(value="wordEmoji", allEntries=true)
+    @CacheEvict(value="wordEmoji")
     WordEmoji save(WordEmoji wordEmoji);
 
     @Override
-    @CacheEvict(value="wordEmoji", allEntries=true)
+    @CacheEvict(value="wordEmoji")
     void delete(WordEmoji wordEmoji);
 }

@@ -12,10 +12,10 @@ public interface EmojiRepository extends JpaRepository<Emoji, Long> {
     Emoji findByEmoji(String emoji);
 
     @Override
-    @CacheEvict(value="emoji", allEntries=true)
+    @CacheEvict(value="emoji")
     Emoji save(Emoji emoji);
 
     @Override
-    @CacheEvict(value="emoji", allEntries=true)
+    @CacheEvict(value="emoji")
     void delete(Emoji emoji);
 }

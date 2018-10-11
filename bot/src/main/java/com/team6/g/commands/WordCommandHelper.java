@@ -156,7 +156,7 @@ public class WordCommandHelper extends AbstractCommand {
         StringBuilder sb = new StringBuilder();
         int[] i = {1};
 
-        wordCountStatisticsList.forEach(wordCountStatistics -> {
+        wordCountStatisticsList.subList(0,30).forEach(wordCountStatistics -> {
             long count = wordCountStatistics.getCount();
             float percent = ((float) count / wordCountRepository.findByWord(wordCountStatistics.getWord()).size()) * 100;
 

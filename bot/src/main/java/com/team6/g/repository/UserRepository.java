@@ -12,6 +12,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByName(String name);
 
     @Override
-    @CacheEvict(value="findByName", allEntries=true)
+    @CacheEvict(value="findByName")
     User save(User user);
 }
