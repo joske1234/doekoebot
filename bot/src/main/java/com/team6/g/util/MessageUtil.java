@@ -1,7 +1,11 @@
 package com.team6.g.util;
 
+import com.team6.g.model.Emoji;
+
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MessageUtil {
     private static final int MIN_ESCAPE = 2;
@@ -16,6 +20,22 @@ public class MessageUtil {
             {">", "gt"}, // > - greater-than
     };
 
+    public static List<String> parseEmoji(Emoji emoji) {
+        List<String> emojis = new ArrayList<>();
+        int emojiIndex = 0;
+
+        for (String s1 : emoji.getEmoji().split("::")) {
+            if (s1.startsWith("skin-tone")) {
+                emojis.set(emojiIndex, emojis.get(emojiIndex) + "::" + s1);
+                emojiIndex++;
+            } else {
+                emojis.add(s1);
+            }
+        }
+
+        return emojis;
+    }
+    
     public static boolean isMatch(String s, String p) {
         int i = 0;
         int j = 0;

@@ -3,10 +3,12 @@ package com.team6.g.messageprocessors;
 import com.team6.g.commands.AbstractCommand;
 import com.team6.g.config.SlackConfig;
 import com.team6.g.model.Emoji;
+import com.team6.g.model.EmojiCount;
 import com.team6.g.model.History;
 import com.team6.g.model.User;
 import com.team6.g.model.WordCount;
 import com.team6.g.model.WordTypeWordTypeCount;
+import com.team6.g.repository.EmojiCountRepository;
 import com.team6.g.repository.HistoryRepository;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
@@ -21,57 +23,59 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class PublicMessageProcessor extends AbstractMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(PublicMessageProcessor.class);
-    
+
     @Autowired
     UserRepository userRepository;
-    
+
     @Autowired
     HistoryRepository historyRepository;
-    
+
     @Autowired
     WordEmojiRepository wordEmojiRepository;
-    
+
     @Autowired
     SlackConfig slackConfig;
-    
+
     @Autowired
     WordTypeEmojiRepository wordTypeEmojiRepository;
-    
+
     @Autowired
     WordTypeWordCountRepository wordTypeWordCountRepository;
-    
+
     @Autowired
     WordCountRepository wordCountRepository;
+    
+    @Autowired
+    EmojiCountRepository emojiCountRepository;
 
     @Override
     protected Boolean internalProcess(SlackMessagePosted event, String message) {
         User user = userRepository.findByName(event.getSender().getUserName());
-        
+
         if (user == null) {
             logger.info("creating user: '{}'", event.getSender().getUserName());
             user = userRepository.save(new User.UserBuilder().withName(event.getSender().getUserName()).build());
         }
-        
+
         if (message.startsWith("!")) {
             String[] commandParts = message.split(" ");
             String baseCommand = commandParts[0].substring(1, commandParts[0].length());
-            
+
             List<String> args = messageToArguments(message);
 
             processCommand(event.getChannel(), baseCommand, args, user);
         } else {
             processPublicMessage(event, message, user);
         }
-        
+
         return true;
     }
-    
+
     private void processCommand(SlackChannel slackChannel, String base, List<String> args, User user) {
         AbstractCommand abstractCommand = getCommand(base);
 
@@ -81,7 +85,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
             logger.error("did not find command with base: '{}', coming from: '{}', with text: '{}'", base, user.getName(), args);
         }
     }
-    
+
     private void processPublicMessage(SlackMessagePosted slackEvent, String text, User user) {
         addMessageToHistory(user, text, slackEvent.getTimeStamp());
 
@@ -91,12 +95,12 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         wordEmojiRepository.findAll().stream().forEach(wordEmoji -> {
             // if word has a space in it, match it on the entire sentence
             if (wordEmoji.getWord().getWord().split(" ").length > 1 && message.toLowerCase().contains(wordEmoji.getWord().getWord().toLowerCase())) {
-                addEmojiToMessage(slackEvent, wordEmoji.getEmoji());
+                addEmojiToMessage(slackEvent, wordEmoji.getEmoji(), user);
             } else {
                 // parse word by word in sentence
                 for (String sentenceWord : message.split(" ")) {
                     if (MessageUtil.isMatch(sentenceWord, wordEmoji.getWord().getWord())) {
-                        addEmojiToMessage(slackEvent, wordEmoji.getEmoji());
+                        addEmojiToMessage(slackEvent, wordEmoji.getEmoji(),user);
                     }
                 }
             }
@@ -119,37 +123,24 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
             }
         });
     }
-    
+
     private void addWordStatistics(WordTypeWordTypeCount word, User user) {
         WordCount wordCount = new WordCount.WordCountBuilder().withWord(word).withUser(user).build();
 
         wordCountRepository.save(wordCount);
     }
 
-    private void addEmojiToMessage(SlackMessagePosted event, Emoji emoji) {
+    private void addEmojiToMessage(SlackMessagePosted event, Emoji emoji, User user) {
         logger.info("adding emoji: '{}' to message: '{}'", String.format(":%s:", emoji.getEmoji()), event.getMessageContent());
 
-        for (String singleEmoji : parseEmoji(emoji)) {
-            slackConfig.slackSession().addReactionToMessage(event.getChannel(), event.getTimeStamp(), singleEmoji);   
-        }
-    }
-    
-    private List<String> parseEmoji(Emoji emoji) {
-        List<String> emojis = new ArrayList<>();
-        int emojiIndex = 0;
-
-        for (String s1 : emoji.getEmoji().split("::")) {
-            if (s1.startsWith("skin-tone")) {
-                emojis.set(emojiIndex, emojis.get(emojiIndex) + "::" + s1);
-                emojiIndex++;
-            } else {
-                emojis.add(s1);
-            }
-        }
+        emojiCountRepository.save(new EmojiCount.EmojiCountBuilder().withUser(user).withEmoji(emoji).build());
         
-        return emojis;
+        for (String singleEmoji : MessageUtil.parseEmoji(emoji)) {
+            slackConfig.slackSession().addReactionToMessage(event.getChannel(), event.getTimeStamp(), singleEmoji);
+        }
     }
-    
+
+
     private void addMessageToHistory(User user, String text, String timeStamp) {
         History history = new History.HistoryBuilder()
                 .withUser(user)

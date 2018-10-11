@@ -25,11 +25,17 @@ public class HistoryCommandHelper extends AbstractCommand {
 
     @Override
     public void handle(SlackChannel slackChannel, User user, List<String> args) {
+        // !history stats date 11/10/2018
+        // !history stats
         if ("stats".equals(args.get(1))) {
             try {
-                if ("date".equals(args.get(2)) && args.size() > 3) {
-                    logger.info("acquiring history stats with date: '{}'", args.get(2));
-                    handleStatsDateCommand(slackChannel, args.get(3));
+                if (args.size() > 3) {
+                    if ("date".equals(args.get(2))) {
+                        logger.info("acquiring history stats with date: '{}'", args.get(2));
+                        handleStatsDateCommand(slackChannel, args.get(3));
+                    } else {
+                        sendMessage(slackChannel, "nope, !history stats date <dd/MM/yyyy> or !history stats");
+                    }
                 } else {
                     logger.info("acquiring history stats");
                     handleStatsCommand(slackChannel);
@@ -38,7 +44,7 @@ public class HistoryCommandHelper extends AbstractCommand {
                 e.printStackTrace();
             }
         } else {
-            sendMessage(slackChannel, String.format("nope, !history stats date <dd/MM/yyyy> or !history stats"));
+            sendMessage(slackChannel, "nope, !history stats date <dd/MM/yyyy> or !history stats");
         }
     }
 
@@ -64,6 +70,7 @@ public class HistoryCommandHelper extends AbstractCommand {
         int i = 1;
 
         for (HistoryStatistics historyStats : historyStatistics) {
+            if (i > 30) break;
             Long amountOfSentencesByName = historyStats.getCount();
             float percentage = ((float) amountOfSentencesByName / totalLinesInHistory) * 100;
 

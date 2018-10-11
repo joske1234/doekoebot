@@ -68,7 +68,7 @@ public class EmojiCount {
         private Emoji emoji;
         private Date dateAdded;
 
-        private EmojiCountBuilder() {
+        public EmojiCountBuilder() {
         }
 
         public static EmojiCountBuilder anEmojiCount() {
