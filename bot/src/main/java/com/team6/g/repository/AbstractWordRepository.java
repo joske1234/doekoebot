@@ -18,11 +18,11 @@ public interface AbstractWordRepository<T extends AbstractWordType, ID extends L
     T findByWord(String word);
 
     @Override
-    @CacheEvict(value = "word")
+    @CacheEvict(value = "word", allEntries = true)
     <S extends T> S save(S entity);
 
     @Override
-    @CacheEvict(value = "word")
+    @CacheEvict(value = "word", allEntries = true)
     void delete(T word);
 
     List<T> findByWordContaining(String word);
