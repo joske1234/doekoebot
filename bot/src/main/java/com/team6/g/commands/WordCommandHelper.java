@@ -155,8 +155,9 @@ public class WordCommandHelper extends AbstractCommand {
     private void printWordCountStatisticsList(List<WordCountStatistics> wordCountStatisticsList, SlackChannel slackChannel, Integer incr) {
         StringBuilder sb = new StringBuilder();
         int[] i = {1};
+        int max = wordCountStatisticsList.size() > 30 ? 30 : wordCountStatisticsList.size();
 
-        wordCountStatisticsList.subList(0,30).forEach(wordCountStatistics -> {
+        wordCountStatisticsList.subList(0,max).forEach(wordCountStatistics -> {
             long count = wordCountStatistics.getCount();
             float percent = ((float) count / wordCountRepository.findByWord(wordCountStatistics.getWord()).size()) * 100;
 
