@@ -28,6 +28,6 @@ public class OvertimeCommandHelper extends AbstractCommand {
 
         User lookupUser = userRepository.findByName(args.get(1));
 
-        sendMessage(slackChannel, String.format("user : `%s`, overtime: *%s*", lookupUser.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUser(lookupUser))));
+        sendMessage(slackChannel, String.format("user : `%s`, overtime: *%s*", lookupUser.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(lookupUser))));
     }
 }

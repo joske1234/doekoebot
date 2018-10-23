@@ -17,7 +17,7 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
     UserActivity save(UserActivity u);
     
     @Cacheable("userActivity")
-    List<UserActivity> findAllByUser(User user);
+    List<UserActivity> findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(User user);
 
     @Query("SELECT e FROM UserActivity e where e.user = ?1 and e.dateAdded BETWEEN CURRENT_DATE and CURRENT_DATE + 1")
     UserActivity findByDateTodayAndUser(User user);

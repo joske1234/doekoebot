@@ -148,7 +148,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
                 userActivityRepository.save(userActivity);
                 
                 sendMessage(slackChannel, String.format("user : `%s` logged out, log in time was: `%s` worked : `%s`", user.getName(), userActivity.getDateIn(), getWorkedTime(userActivity.getDateIn(), userActivity.getDateOut())));
-                sendMessage(slackChannel, String.format("user : `%s` has: `%s` overtime", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUser(user))));
+                sendMessage(slackChannel, String.format("user : `%s` has: `%s` overtime", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(user))));
             } else if (userActivityType == UserActivityType.LOG_IN && userActivity == null) {
                 // not yet logged in today, logging in now
                 userActivityRepository.save(new UserActivity.UserActivityBuilder().withUser(user).withDateIn(new Date()).withDateOut(null).build());
