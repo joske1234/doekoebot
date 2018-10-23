@@ -33,11 +33,11 @@ public class UserActivity {
     private Date dateAdded;
     
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "DATE_IN", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "DATE_IN")
     private Date dateIn;
     
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "DATE_OUT", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "DATE_OUT")
     private Date dateOut;
 
     @PrePersist
