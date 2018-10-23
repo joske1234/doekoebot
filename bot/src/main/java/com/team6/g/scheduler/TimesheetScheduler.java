@@ -37,10 +37,10 @@ public class TimesheetScheduler extends SlackCommands {
     /***
      * Cron expression to make sure all users that are logged in will have a logout date
      * if there is no logout date set, we will assume the user has worked 8 hours.
-     * timer will go off at 7 PM. Initial delay is set to 20 seconds because spring has to be fully loaded
+     * timer will go off at 7 PM. 
      *
      */
-    @Scheduled(initialDelay = 20000, cron="0 0 19 * * MON-FRI", zone="Europe/Brussels")
+    @Scheduled(cron="0 0 19 * * MON-FRI", zone="Europe/Brussels")
     public void checkUserTimesheets() {
         List<User> userList = userRepository.findByWorkPeriodMinutesIsNotNull();
 
