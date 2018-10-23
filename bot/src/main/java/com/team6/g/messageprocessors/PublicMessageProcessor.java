@@ -6,15 +6,19 @@ import com.team6.g.model.Emoji;
 import com.team6.g.model.EmojiCount;
 import com.team6.g.model.History;
 import com.team6.g.model.User;
+import com.team6.g.model.UserActivity;
+import com.team6.g.model.UserActivityType;
 import com.team6.g.model.WordCount;
 import com.team6.g.model.WordTypeWordTypeCount;
 import com.team6.g.repository.EmojiCountRepository;
 import com.team6.g.repository.HistoryRepository;
+import com.team6.g.repository.UserActivityRepository;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
 import com.team6.g.repository.WordEmojiRepository;
 import com.team6.g.repository.WordTypeEmojiRepository;
 import com.team6.g.repository.WordTypeWordCountRepository;
+import com.team6.g.util.DateUtil;
 import com.team6.g.util.MessageUtil;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
@@ -23,11 +27,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+
+import static com.team6.g.util.DateUtil.getWorkedTime;
 
 @Component
 public class PublicMessageProcessor extends AbstractMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(PublicMessageProcessor.class);
+
+    private List<String> LOG_IN_WORDS = new ArrayList<>(Arrays.asList("mogguh", "aanwezig", "hennig laat", "hennig vroeg", "goeiemorgen", "goeie morgen"));
+    private List<String> LOG_OUT_WORDS = new ArrayList<>(Arrays.asList("zuk"));
 
     @Autowired
     UserRepository userRepository;
@@ -49,9 +61,12 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
 
     @Autowired
     WordCountRepository wordCountRepository;
-    
+
     @Autowired
     EmojiCountRepository emojiCountRepository;
+
+    @Autowired
+    UserActivityRepository userActivityRepository;
 
     @Override
     protected Boolean internalProcess(SlackMessagePosted event, String message) {
@@ -92,7 +107,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         // add emojis to sentence
         String message = MessageUtil.clean(text).replaceAll("[^a-zA-Z0-9'ëäöüÄÖÜßéÉèÈêÊ ]", "").toLowerCase();
 
-        wordEmojiRepository.findAll().stream().forEach(wordEmoji -> {
+        wordEmojiRepository.findAll().forEach(wordEmoji -> {
             // if word has a space in it, match it on the entire sentence
             if (wordEmoji.getWord().getWord().split(" ").length > 1 && message.toLowerCase().contains(wordEmoji.getWord().getWord().toLowerCase())) {
                 addEmojiToMessage(slackEvent, wordEmoji.getEmoji(), user);
@@ -100,13 +115,54 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
                 // parse word by word in sentence
                 for (String sentenceWord : message.split(" ")) {
                     if (MessageUtil.isMatch(sentenceWord, wordEmoji.getWord().getWord())) {
-                        addEmojiToMessage(slackEvent, wordEmoji.getEmoji(),user);
+                        addEmojiToMessage(slackEvent, wordEmoji.getEmoji(), user);
                     }
                 }
             }
         });
 
         findWordsInSentence(user, message);
+        findTimesheetWords(slackEvent.getChannel(), user, message);
+    }
+
+    private void findTimesheetWords(SlackChannel slackChannel, User user, String message) {
+        List<String> wordsToMatch;
+        UserActivityType userActivityType = null;
+
+        if (DateUtil.isBeforeNoon(new Date())) {
+            wordsToMatch = LOG_IN_WORDS;
+            userActivityType = UserActivityType.LOG_IN;
+        } else if (DateUtil.isAfterNoon(new Date())) {
+            wordsToMatch = LOG_OUT_WORDS;
+            userActivityType = UserActivityType.LOG_OUT;
+        } else {
+            return;
+        }
+
+        if (wordsToMatch.contains(message)) {
+            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user);
+            
+            if (userActivityType == UserActivityType.LOG_OUT && (userActivity.getDateIn() != null && userActivity.getDateOut() == null)) {
+                // already logged in , logout date null -> log out
+                userActivity.setDateOut(new Date());
+                userActivityRepository.save(userActivity);
+                
+                sendMessage(slackChannel, String.format("user : `%s` logged out, log in time was: `%s` worked : `%s`", user.getName(), userActivity.getDateIn(), getWorkedTime(userActivity.getDateIn(), userActivity.getDateOut())));
+                sendMessage(slackChannel, String.format("user : `%s` has: `%s` overtime", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUser(user))));
+            } else if (userActivityType == UserActivityType.LOG_IN && userActivity == null) {
+                // not yet logged in today, logging in now
+                userActivityRepository.save(new UserActivity.UserActivityBuilder().withUser(user).withDateIn(new Date()).withDateOut(null).build());
+                sendMessage(slackChannel, String.format("user : `%s` has set activity: *%s* with date: %s", user.getName(), userActivityType, new Date()));
+            } else if (userActivityType == UserActivityType.LOG_IN && userActivity.getDateIn() != null) {
+                // already logged in
+                sendMessage(slackChannel, String.format("user : `%s` is already logged in with date: `%s`", user.getName(), userActivity.getDateIn()));
+            } else if (userActivityType == UserActivityType.LOG_OUT && userActivity.getDateOut() != null) {
+                // already logged out
+                sendMessage(slackChannel, String.format("user : `%s` is already logged out with date: `%s`", user.getName(), userActivity.getDateOut()));
+            } else {
+                logger.error("unknown route, user: '(}', userActivity: '{}'", user, userActivity);
+            }
+        }
     }
 
     private void findWordsInSentence(User user, String message) {
@@ -134,7 +190,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         logger.info("adding emoji: '{}' to message: '{}'", String.format(":%s:", emoji.getEmoji()), event.getMessageContent());
 
         emojiCountRepository.save(new EmojiCount.EmojiCountBuilder().withUser(user).withEmoji(emoji).build());
-        
+
         for (String singleEmoji : MessageUtil.parseEmoji(emoji)) {
             slackConfig.slackSession().addReactionToMessage(event.getChannel(), event.getTimeStamp(), singleEmoji);
         }

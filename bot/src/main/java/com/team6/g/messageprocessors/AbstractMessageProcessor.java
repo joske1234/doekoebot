@@ -1,6 +1,7 @@
 package com.team6.g.messageprocessors;
 
 import com.team6.g.commands.AbstractCommand;
+import com.team6.g.commands.SlackCommands;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public abstract class AbstractMessageProcessor implements SlackBotMessageProcessor {
+public abstract class AbstractMessageProcessor extends SlackCommands implements SlackBotMessageProcessor {
     @Autowired
     ApplicationContext applicationContext;
 

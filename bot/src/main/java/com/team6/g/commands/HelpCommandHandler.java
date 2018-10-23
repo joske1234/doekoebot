@@ -28,6 +28,8 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("!word list\n");
         sb.append("!word <add|remove>\n");
         sb.append("!word search word\n");
+        sb.append("-- overtime --\n");
+        sb.append("!overtime <user>\n");
                 
         sendMessage(slackChannel, sb.toString());
     }
