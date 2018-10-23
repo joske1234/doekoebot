@@ -21,13 +21,15 @@ public class OvertimeCommandHelper extends AbstractCommand {
     @Override
     public void handle(SlackChannel slackChannel, User user, List<String> args) {
         // !overtime maikel
-        if (args.size() != 2) {
+        if (args.size() > 2) {
             sendMessage(slackChannel, "fail, command: !overtime <username>");
             return;
         }
+        
+        if (args.size() == 2) {
+            user = userRepository.findByName(args.get(1));
+        }
 
-        User lookupUser = userRepository.findByName(args.get(1));
-
-        sendMessage(slackChannel, String.format("user : `%s`, overtime: *%s*", lookupUser.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(lookupUser))));
+        sendMessage(slackChannel, String.format("user : `%s`, overtime: *%s*", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(user))));
     }
 }
