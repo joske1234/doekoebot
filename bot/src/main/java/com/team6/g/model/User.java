@@ -17,6 +17,17 @@ public class User {
 
     @Column(name = "NAME", unique = true)
     private String name;
+    
+    @Column(name = "WORK_PERIOD_MINUTES")
+    private Integer workPeriodMinutes;
+
+    public Integer getWorkPeriodMinutes() {
+        return workPeriodMinutes;
+    }
+
+    public void setWorkPeriodMinutes(Integer workPeriodMinutes) {
+        this.workPeriodMinutes = workPeriodMinutes;
+    }
 
     public Long getId() {
         return id;
@@ -33,9 +44,11 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public static final class UserBuilder {
+        private Long id;
         private String name;
+        private Integer workPeriodMinutes;
 
         public UserBuilder() {
         }
@@ -44,14 +57,26 @@ public class User {
             return new UserBuilder();
         }
 
+        public UserBuilder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
         public UserBuilder withName(String name) {
             this.name = name;
             return this;
         }
 
+        public UserBuilder withWorkPeriodMinutes(Integer workPeriodMinutes) {
+            this.workPeriodMinutes = workPeriodMinutes;
+            return this;
+        }
+
         public User build() {
             User user = new User();
+            user.setId(id);
             user.setName(name);
+            user.setWorkPeriodMinutes(workPeriodMinutes);
             return user;
         }
     }
@@ -61,6 +86,7 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", workPeriodMinutes=" + workPeriodMinutes +
                 '}';
     }
 }
