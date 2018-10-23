@@ -5,6 +5,7 @@ import com.team6.g.model.UserActivity;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DateUtil {
     public static boolean isBeforeNoon(Date date) {
@@ -42,10 +43,9 @@ public class DateUtil {
 
     public static String calculateOverTime(List<UserActivity> userActivities) {
         long totalOverTime = 0L;
-        long eightHoursInMilliseconds = 28800000L;
 
         for (UserActivity userActivity : userActivities) {
-            long diffInMillies = (userActivity.getDateOut().getTime() - userActivity.getDateIn().getTime()) - eightHoursInMilliseconds;
+            long diffInMillies = (userActivity.getDateOut().getTime() - userActivity.getDateIn().getTime()) - TimeUnit.MINUTES.toMillis(userActivity.getUser().getWorkPeriodMinutes());
 
             totalOverTime += diffInMillies; 
         }
