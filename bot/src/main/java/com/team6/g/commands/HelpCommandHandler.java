@@ -33,6 +33,7 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("!timesheet logintime <user>\n");
         sb.append("!timesheet workedtime <user>\n");
         sb.append("!timesheet overtime <user>\n");
+        sb.append("!timesheet edit logintime <user> <date> (only admin)\n");
                 
         sendMessage(slackChannel, sb.toString());
     }

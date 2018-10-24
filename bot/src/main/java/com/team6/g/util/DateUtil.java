@@ -2,6 +2,8 @@ package com.team6.g.util;
 
 import com.team6.g.model.UserActivity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -58,5 +60,19 @@ public class DateUtil {
     private static String formatTimeToString(long millis) {
         long secs = millis / 1000;
         return String.format("%02d hour(s), %02d minute(s), %02d second(s)", secs / 3600, (secs % 3600) / 60, secs % 60);
+    }
+    
+    public static Date getTodayDateWithTimePattern(String timeStr) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(timeStr));
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, cal.get(Calendar.SECOND));
+
+        return calendar.getTime();
     }
 }
