@@ -11,6 +11,7 @@ public class HelpCommandHandler extends AbstractCommand {
     @Override
     public void handle(SlackChannel slackChannel, User slackUser, List<String> args) {
         StringBuilder sb = new StringBuilder();
+        
         sb.append("========= doekoebot v2.0 =========\n");
         sb.append("\n");
         sb.append("-- emojis --\n");
@@ -28,8 +29,10 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("!word list\n");
         sb.append("!word <add|remove>\n");
         sb.append("!word search word\n");
-        sb.append("-- overtime --\n");
-        sb.append("!overtime <user>\n");
+        sb.append("-- timesheet --\n");
+        sb.append("!timesheet logintime <user>\n");
+        sb.append("!timesheet workedtime <user>\n");
+        sb.append("!timesheet overtime <user>\n");
                 
         sendMessage(slackChannel, sb.toString());
     }

@@ -45,6 +45,8 @@ public class DateUtil {
         long totalOverTime = 0L;
 
         for (UserActivity userActivity : userActivities) {
+            if (userActivity.getDateOut() == null || userActivity.getDateIn() == null) continue;
+            
             long diffInMillies = (userActivity.getDateOut().getTime() - userActivity.getDateIn().getTime()) - TimeUnit.MINUTES.toMillis(userActivity.getUser().getWorkPeriodMinutes());
 
             totalOverTime += diffInMillies; 
