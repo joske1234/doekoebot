@@ -27,11 +27,6 @@ public class TimesheetCommandHelper extends AbstractCommand {
 
     @Override
     public void handle(SlackChannel slackChannel, User user, List<String> args) {
-        if (args.size() > 3) {
-            sendMessage(slackChannel, "fail.");
-            return;
-        }
-
         // !timesheet <command> <user>
         if (args.size() >= 2) {
             // if the command has no name included, lookup our own
