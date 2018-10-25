@@ -1,8 +1,8 @@
 package com.team6.g.commands;
 
 import com.team6.g.model.User;
-import com.team6.g.model.WordCountStatistics;
 import com.team6.g.model.WordTypeWordTypeCount;
+import com.team6.g.model.statistics.WordCountStatistics;
 import com.team6.g.repository.UserRepository;
 import com.team6.g.repository.WordCountRepository;
 import com.team6.g.repository.WordTypeWordCountRepository;

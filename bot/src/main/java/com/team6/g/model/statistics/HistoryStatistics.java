@@ -1,4 +1,6 @@
-package com.team6.g.model;
+package com.team6.g.model.statistics;
+
+import com.team6.g.model.User;
 
 public class HistoryStatistics {
     private User user;

@@ -1,7 +1,7 @@
 package com.team6.g.commands;
 
-import com.team6.g.model.HistoryStatistics;
 import com.team6.g.model.User;
+import com.team6.g.model.statistics.HistoryStatistics;
 import com.team6.g.repository.HistoryRepository;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import org.apache.commons.lang3.time.DateUtils;

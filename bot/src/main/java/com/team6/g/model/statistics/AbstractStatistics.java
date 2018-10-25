@@ -1,4 +1,7 @@
-package com.team6.g.model;
+package com.team6.g.model.statistics;
+
+import com.team6.g.model.User;
+import com.team6.g.model.WordTypeWordTypeCount;
 
 public class AbstractStatistics {
     private User user;
