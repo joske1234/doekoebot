@@ -122,7 +122,10 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         });
 
         findWordsInSentence(user, message);
-        findTimesheetWords(slackEvent.getChannel(), user, message);
+        
+        if (user.getWorkPeriodMinutes() != null) {
+            findTimesheetWords(slackEvent.getChannel(), user, message);
+        }
     }
 
     private void findTimesheetWords(SlackChannel slackChannel, User user, String message) {
