@@ -16,6 +16,7 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("\n");
         sb.append("-- emojis --\n");
         sb.append("!emoji <add|remove> <word> <emoji>\n");
+        sb.append("!emoji stats <user>\n");
         sb.append("\n");
         sb.append("-- history --\n");
         sb.append("!history stats date <dd/MM/yyyy>\n");
