@@ -143,7 +143,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         }
 
         if (wordsToMatch.contains(message)) {
-            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user);
+            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
             
             if (userActivityType == UserActivityType.LOG_OUT && (userActivity.getDateIn() != null && userActivity.getDateOut() == null)) {
                 // already logged in , logout date null -> log out

@@ -41,21 +41,21 @@ public class TimesheetCommandHelper extends AbstractCommand {
                 sendMessage(slackChannel, String.format("user : `%s`, overtime: *%s*", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(user))));
             } else if ("logintime".equals(args.get(1))) {
                 // !timesheet logintime maikel
-                UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user);
+                UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
 
                 if (userActivity.getDateIn() == null) {
                     sendMessage(slackChannel, "user : `%s` did not login yet");
                 } else {
-                    sendMessage(slackChannel, String.format("user : `%s` logged in at : `%s`", user.getName(), userActivityRepository.findByDateTodayAndUser(user).getDateIn()));
+                    sendMessage(slackChannel, String.format("user : `%s` logged in at : `%s`", user.getName(), userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn()));
                 }
             } else if ("workedtime".equals(args.get(1))) {
                 // !timesheet workedtime maikel
-                UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user);
+                UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
 
                 if (userActivity.getDateIn() == null) {
                     sendMessage(slackChannel, "user : `%s` did not login yet");
                 } else {
-                    sendMessage(slackChannel, String.format("user : `%s` has already worked `%s` today", user.getName(), DateUtil.getWorkedTime(userActivityRepository.findByDateTodayAndUser(user).getDateIn(), new Date())));
+                    sendMessage(slackChannel, String.format("user : `%s` has already worked `%s` today", user.getName(), DateUtil.getWorkedTime(userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn(), new Date())));
                 }
             }
         }
@@ -70,7 +70,7 @@ public class TimesheetCommandHelper extends AbstractCommand {
                 return;
             }
 
-            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(lookupUser);
+            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(lookupUser.getId());
             
             if (userActivity == null) {
                 sendMessage(slackChannel, String.format("no user activity found for user: `%s`", user.getName()));

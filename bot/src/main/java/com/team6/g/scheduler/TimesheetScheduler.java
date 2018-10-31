@@ -47,7 +47,7 @@ public class TimesheetScheduler extends SlackCommands {
         logger.info("starting checkUserTimesheets scheduler..");
 
         for (User user : userList) {
-            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user);
+            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
             
             if (userActivity != null && userActivity.getDateIn() != null && userActivity.getDateOut() == null) {
                 long startTime = userActivity.getDateIn().getTime();

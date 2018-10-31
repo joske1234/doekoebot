@@ -19,6 +19,6 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
     @Cacheable("userActivity")
     List<UserActivity> findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(User user);
 
-    @Query("SELECT e FROM UserActivity e where e.user = ?1 and e.dateAdded BETWEEN CURDATE() and DATE_ADD(CURDATE(), INTERVAL +1 DAY)")
-    UserActivity findByDateTodayAndUser(User user);
+    @Query(value = "SELECT * FROM USER_ACTIVITY WHERE USER_ID = ?1 and DATE_ADDED BETWEEN CURDATE() and DATE_ADD(CURDATE(), INTERVAL +1 DAY)", nativeQuery = true)
+    UserActivity findByDateTodayAndUser(Long userId);
 }
