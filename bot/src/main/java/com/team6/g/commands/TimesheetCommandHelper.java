@@ -60,35 +60,51 @@ public class TimesheetCommandHelper extends AbstractCommand {
             }
         }
         
-        // !timesheet edit logintime <user> <date>
-        if (args.size() == 5 && "edit".equals(args.get(1)) && user.getId() == 1) {
+        // !timesheet edit <logintime|logouttime> <date>
+        if (args.size() == 4 && "edit".equals(args.get(1))) {
             String whatToEdit = args.get(2);
-            User lookupUser = userRepository.findByName(args.get(3));
-            
-            if (lookupUser == null) {
-                sendMessage(slackChannel, String.format("user : `%s` does not exist", args.get(3)));
-                return;
-            }
+            String dateStr = args.get(3);
 
-            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(lookupUser.getId());
+            UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
             
             if (userActivity == null) {
                 sendMessage(slackChannel, String.format("no user activity found for user: `%s`", user.getName()));
                 return;
             }
-            
-            if ("logintime".equals(whatToEdit)) {
-                try {
-                    Date dateToSet = DateUtil.getTodayDateWithTimePattern(args.get(4));
-                    
-                    userActivity.setDateIn(dateToSet);
-                    userActivityRepository.save(userActivity);
-                    
-                    sendMessage(slackChannel, String.format("changed log in date to : `%s` for user: `%s`", args.get(4), lookupUser.getName()));
-                } catch (ParseException e) {
-                    sendMessage(slackChannel, String.format("cannot parse: `%s`, correct format: HH:mm:ss", args.get(4)));
-                }
+
+            if (changeTime(userActivity, whatToEdit, dateStr)) {
+                sendMessage(slackChannel, String.format("changed %s time to : `%s` for user: `%s`", whatToEdit, dateStr, user.getName()));
+            } else {
+                sendMessage(slackChannel, "unknown error occurred");
             }
+        }
+    }
+    
+    private Boolean changeTime(UserActivity userActivity, String whatToEdit, String dateStr) {
+        try {
+            Boolean ret = true;
+            Date dateToSet = DateUtil.getTodayDateWithTimePattern(dateStr);
+            
+            switch (whatToEdit) {
+                case "logintime":
+                    userActivity.setDateIn(dateToSet);
+                    break;
+                
+                case "logouttime":
+                    userActivity.setDateOut(dateToSet);
+                    break;
+                    
+                default: 
+                    ret = false;
+            }
+
+            if (ret) {
+                userActivityRepository.save(userActivity);
+            }
+            
+            return ret;
+        } catch (ParseException e) {
+            return false;
         }
     }
 }
