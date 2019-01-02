@@ -51,12 +51,14 @@ public class DateUtil {
         for (UserActivity userActivity : userActivities) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(userActivity.getDateIn());
+            
+            if (userActivity.getDateOut() == null || userActivity.getDateIn() == null) continue;
+            
+            if (cal.get(Calendar.MONTH) == currentMonth) {
+                long diffInMillies = (userActivity.getDateOut().getTime() - userActivity.getDateIn().getTime()) - TimeUnit.MINUTES.toMillis(userActivity.getUser().getWorkPeriodMinutes());
 
-            if ((userActivity.getDateOut() == null || userActivity.getDateIn() == null) && (cal.get(Calendar.MONTH) != currentMonth)) continue;
-
-            long diffInMillies = (userActivity.getDateOut().getTime() - userActivity.getDateIn().getTime()) - TimeUnit.MINUTES.toMillis(userActivity.getUser().getWorkPeriodMinutes());
-
-            totalOverTime += diffInMillies; 
+                totalOverTime += diffInMillies;
+            }
         }
 
         return formatTimeToString(totalOverTime);
