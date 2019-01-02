@@ -46,9 +46,14 @@ public class DateUtil {
     public static String calculateOverTime(List<UserActivity> userActivities) {
         long totalOverTime = 0L;
 
+        int currentMonth = Calendar.getInstance().get(Calendar.MONTH);
+        
         for (UserActivity userActivity : userActivities) {
-            if (userActivity.getDateOut() == null || userActivity.getDateIn() == null) continue;
-            
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(userActivity.getDateIn());
+
+            if ((userActivity.getDateOut() == null || userActivity.getDateIn() == null) && (cal.get(Calendar.MONTH) != currentMonth)) continue;
+
             long diffInMillies = (userActivity.getDateOut().getTime() - userActivity.getDateIn().getTime()) - TimeUnit.MINUTES.toMillis(userActivity.getUser().getWorkPeriodMinutes());
 
             totalOverTime += diffInMillies; 

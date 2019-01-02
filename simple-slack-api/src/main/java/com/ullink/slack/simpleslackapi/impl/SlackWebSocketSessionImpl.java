@@ -33,7 +33,6 @@ import com.ullink.slack.simpleslackapi.events.SlackGroupJoined;
 import com.ullink.slack.simpleslackapi.events.SlackMessageDeleted;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.events.SlackMessageUpdated;
-import com.ullink.slack.simpleslackapi.events.UnknownEvent;
 import com.ullink.slack.simpleslackapi.events.UserTyping;
 import com.ullink.slack.simpleslackapi.events.userchange.SlackTeamJoin;
 import com.ullink.slack.simpleslackapi.events.userchange.SlackUserChange;
@@ -656,7 +655,7 @@ class SlackWebSocketSessionImpl extends AbstractSlackSessionImpl implements Slac
     public SlackMessageHandle<SlackMessageReply> deleteMessage(String timeStamp, SlackChannel channel) {
         SlackMessageHandle<SlackMessageReply> handle = new SlackMessageHandle<>(getNextMessageId());
         Map<String, String> arguments = new HashMap<>();
-        arguments.put("token", authToken);
+        arguments.put("token", "xoxp-102457308374-101076355712-496106611861-f63f3deee48411bf229c9b1da100bf2e");
         arguments.put("channel", channel.getId());
         arguments.put("ts", timeStamp);
         postSlackCommand(arguments, CHAT_DELETE_COMMAND, handle);
