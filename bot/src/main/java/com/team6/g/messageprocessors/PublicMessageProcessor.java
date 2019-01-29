@@ -84,7 +84,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
             user = userRepository.save(new User.UserBuilder().withName(event.getSender().getUserName()).build());
         }
 
-        if ((MuteConfig.active != null && MuteConfig.active) && MuteConfig.userToMute.getUserName().equals(event.getSender().getUserName())) {
+        if (MuteConfig.active != null && MuteConfig.active && MuteConfig.userToMute.getUserName().equals(event.getSender().getUserName())) {
             slackConfig.slackSession().deleteMessage(event.getTimeStamp(), event.getChannel());
             return true;
         }
@@ -218,7 +218,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
 
         if (count % STATS_TRIGGER_COUNT == 0) {
             // Message channel
-            sendMessage(channel, ":partyparrot: :aussie_conga_parrot: :partyparrot: " + user.getName() + " has said ` " + word + "` a total of `" + count + "` times :partyparrot: :aussie_conga_parrot: :partyparrot:");
+            sendMessage(channel, ":partyparrot: :aussie_conga_parrot: :partyparrot: " + user.getName() + " has said ` " + word.getWord() + "` a total of `" + count + "` times :partyparrot: :aussie_conga_parrot: :partyparrot:");
 
             List<History> historyList = historyRepository.findAll(new Sort(Sort.Direction.DESC, "id"));
 
