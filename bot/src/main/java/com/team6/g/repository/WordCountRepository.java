@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface WordCountRepository extends JpaRepository<WordCount, Long> {
+    List<WordCount> findByUserAndWord(User user, WordTypeWordTypeCount word);
     List<WordCount> findByWord(WordTypeWordTypeCount word);
 
     @Query("SELECT new com.team6.g.model.statistics.WordCountStatistics(w.user, w.word, count(w)) FROM WordCount w WHERE w.user = ?1 GROUP BY w.user, w.word ORDER BY count(w) DESC")

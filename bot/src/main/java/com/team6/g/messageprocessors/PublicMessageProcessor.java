@@ -1,6 +1,7 @@
 package com.team6.g.messageprocessors;
 
 import com.team6.g.commands.AbstractCommand;
+import com.team6.g.config.MuteConfig;
 import com.team6.g.config.SlackConfig;
 import com.team6.g.model.Emoji;
 import com.team6.g.model.EmojiCount;
@@ -21,16 +22,21 @@ import com.team6.g.repository.WordTypeWordCountRepository;
 import com.team6.g.util.DateUtil;
 import com.team6.g.util.MessageUtil;
 import com.ullink.slack.simpleslackapi.SlackChannel;
+import com.ullink.slack.simpleslackapi.SlackMessageHandle;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import com.ullink.slack.simpleslackapi.replies.EmojiSlackReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static com.team6.g.util.DateUtil.getWorkedTime;
 
@@ -38,8 +44,9 @@ import static com.team6.g.util.DateUtil.getWorkedTime;
 public class PublicMessageProcessor extends AbstractMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(PublicMessageProcessor.class);
 
-    private List<String> LOG_IN_WORDS = new ArrayList<>(Arrays.asList("mogguh", "aanwezig", "hennig laat", "hennig vroeg", "goeiemorgen", "goeie morgen"));
-    private List<String> LOG_OUT_WORDS = new ArrayList<>(Arrays.asList("zuk"));
+    private final List<String> LOG_IN_WORDS = new ArrayList<>(Arrays.asList("mogguh", "aanwezig", "hennig laat", "hennig vroeg", "goeiemorgen", "goeie morgen"));
+    private final List<String> LOG_OUT_WORDS = new ArrayList<>(Arrays.asList("zuk"));
+    private final Integer STATS_TRIGGER_COUNT = 250;
 
     @Autowired
     UserRepository userRepository;
@@ -75,6 +82,11 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         if (user == null) {
             logger.info("creating user: '{}'", event.getSender().getUserName());
             user = userRepository.save(new User.UserBuilder().withName(event.getSender().getUserName()).build());
+        }
+
+        if ((MuteConfig.active != null && MuteConfig.active) && MuteConfig.userToMute.getUserName().equals(event.getSender().getUserName())) {
+            slackConfig.slackSession().deleteMessage(event.getTimeStamp(), event.getChannel());
+            return true;
         }
 
         if (message.startsWith("!")) {
@@ -121,7 +133,7 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
             }
         });
 
-        findWordsInSentence(user, message);
+        findWordsInSentence(slackEvent, user, message);
         
         if (user.getWorkPeriodMinutes() != null) {
             findTimesheetWords(slackEvent.getChannel(), user, message);
@@ -168,25 +180,27 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
         }
     }
 
-    private void findWordsInSentence(User user, String message) {
+    private void findWordsInSentence(SlackMessagePosted slackMessagePosted, User user, String message) {
         wordTypeWordCountRepository.findAll().stream().forEach(word -> {
             if (word.getWord().split(" ").length > 1 && message.toLowerCase().contains(word.getWord().toLowerCase())) {
-                addWordStatistics(word, user);
+                addWordStatistics(slackMessagePosted, word, user);
             } else {
                 // parse word by word in sentence
                 for (String sentenceWord : message.split(" ")) {
                     if (MessageUtil.isMatch(sentenceWord, word.getWord())) {
-                        addWordStatistics(word, user);
+                        addWordStatistics(slackMessagePosted, word, user);
                     }
                 }
             }
         });
     }
 
-    private void addWordStatistics(WordTypeWordTypeCount word, User user) {
+    private void addWordStatistics(SlackMessagePosted slackMessagePosted, WordTypeWordTypeCount word, User user) {
         WordCount wordCount = new WordCount.WordCountBuilder().withWord(word).withUser(user).build();
 
         wordCountRepository.save(wordCount);
+        
+        checkIfWordHitsStats(slackMessagePosted.getChannel(), word, user);
     }
 
     private void addEmojiToMessage(SlackMessagePosted event, Emoji emoji, User user) {
@@ -198,8 +212,29 @@ public class PublicMessageProcessor extends AbstractMessageProcessor {
             slackConfig.slackSession().addReactionToMessage(event.getChannel(), event.getTimeStamp(), singleEmoji);
         }
     }
+    
+    private void checkIfWordHitsStats(SlackChannel channel, WordTypeWordTypeCount word, User user) {
+        int count = wordCountRepository.findByUserAndWord(user, word).size();
 
+        if (count % STATS_TRIGGER_COUNT == 0) {
+            // Message channel
+            sendMessage(channel, ":partyparrot: :aussie_conga_parrot: :partyparrot: " + user.getName() + " has said ` " + word + "` a total of `" + count + "` times :partyparrot: :aussie_conga_parrot: :partyparrot:");
 
+            List<History> historyList = historyRepository.findAll(new Sort(Sort.Direction.DESC, "id"));
+
+            SlackMessageHandle<EmojiSlackReply> handle = slackConfig.slackSession().listEmoji();
+            Map<String, String> emojis = handle.getReply().getEmojis();
+            List keys = new ArrayList(emojis.keySet());
+
+            // 24 emojis max per sentence
+            for (int x = 0; x < 24; x++) {
+                historyList.stream().limit(10).forEach(history -> {
+                    new Thread(() -> slackConfig.slackSession().addReactionToMessage(channel, history.getTs(), (String) keys.get(new Random().nextInt(keys.size())))).run();
+                });
+            }
+        }
+    }
+    
     private void addMessageToHistory(User user, String text, String timeStamp) {
         History history = new History.HistoryBuilder()
                 .withUser(user)

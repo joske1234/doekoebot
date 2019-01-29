@@ -58,7 +58,15 @@ public class History {
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
+    public String getTs() {
+        return ts;
+    }
+
+    public void setTs(String ts) {
+        this.ts = ts;
+    }
+
     @PrePersist
     void dateAdded() {
         this.dateAdded = this.dateAdded = new Date();
