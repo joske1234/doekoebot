@@ -88,7 +88,7 @@ public class TimesheetCommandHelper extends AbstractCommand {
 
                 sb.append(String.format("user : `%s` logged in at : `%s`\n", user.getName(), userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn()));
                 sb.append(String.format("user : `%s` has already worked `%s` today\n", user.getName(), DateUtil.getWorkedTime(userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn(), new Date())));
-                sb.append(String.format("user : `%s`, overtime: *%s*\n", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(user))));
+                sb.append(String.format("user : `%s` overtime: *%s*\n", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(user))));
 
                 sendMessage(slackChannel, sb.toString());
             }
