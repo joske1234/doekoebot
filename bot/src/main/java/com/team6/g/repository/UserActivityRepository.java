@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -21,4 +22,6 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
 
     @Query(value = "SELECT * FROM user_activity WHERE user_id = ?1 and date_added BETWEEN CURDATE() and DATE_ADD(CURDATE(), INTERVAL +1 DAY)", nativeQuery = true)
     UserActivity findByDateTodayAndUser(Long userId);
+
+    UserActivity findAllByDateAddedBetweenAndUser(Date start, Date end, User user);
 }

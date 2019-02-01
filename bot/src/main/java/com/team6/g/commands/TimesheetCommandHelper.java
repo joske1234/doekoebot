@@ -12,8 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import static com.team6.g.util.DateUtil.atEndOfDay;
+import static com.team6.g.util.DateUtil.atStartOfDay;
+import static com.team6.g.util.DateUtil.getWorkedTime;
 
 @Component
 public class TimesheetCommandHelper extends AbstractCommand {
@@ -29,7 +34,7 @@ public class TimesheetCommandHelper extends AbstractCommand {
     public void handle(SlackChannel slackChannel, User user, List<String> args) {
         // !timesheet <command> <user>
         if (args.size() >= 2) {
-            // if the command has no name included, lookup our own
+            // if the command has name included, lookup
             if (args.size() == 3) {
                 user = userRepository.findByName(args.get(2));
             }
@@ -49,14 +54,43 @@ public class TimesheetCommandHelper extends AbstractCommand {
                     sendMessage(slackChannel, String.format("user : `%s` logged in at : `%s`", user.getName(), userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn()));
                 }
             } else if ("workedtime".equals(args.get(1))) {
-                // !timesheet workedtime maikel
-                UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
+                // !timesheet workedtime date <date>
+                if (args.size() == 4 && "date".equals(args.get(2))) {
+                    SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyyy");
+                    try {
+                        Date dateObj = parser.parse(args.get(3));
+                        UserActivity userActivity = userActivityRepository.findAllByDateAddedBetweenAndUser(atStartOfDay(dateObj), atEndOfDay(dateObj), user);
 
-                if (userActivity.getDateIn() == null) {
-                    sendMessage(slackChannel, "user : `%s` did not login yet");
+                        if (userActivity == null) {
+                            sendMessage(slackChannel, "*niet* gewerkt op die dag, dus geen factuur'je. mondje.");
+                        } else {
+                            if (userActivity.getDateIn() != null && userActivity.getDateOut() != null) {
+                                sendMessage(slackChannel, String.format("user : `%s` worked : %s", user.getName(), getWorkedTime(userActivity.getDateIn(), userActivity.getDateOut())));
+                            } else {
+                                sendMessage(slackChannel, "eerst een hele dag werken plz");
+                            }
+                        }
+                    } catch (ParseException e) {
+                        sendMessage(slackChannel, "uh mooi date format, n00b. dd/MM/yyyy pls");
+                    }
                 } else {
-                    sendMessage(slackChannel, String.format("user : `%s` has already worked `%s` today", user.getName(), DateUtil.getWorkedTime(userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn(), new Date())));
+                    // !timesheet workedtime maikel
+                    UserActivity userActivity = userActivityRepository.findByDateTodayAndUser(user.getId());
+
+                    if (userActivity.getDateIn() == null) {
+                        sendMessage(slackChannel, "user : `%s` did not login yet");
+                    } else {
+                        sendMessage(slackChannel, String.format("user : `%s` has already worked `%s` today", user.getName(), DateUtil.getWorkedTime(userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn(), new Date())));
+                    }
                 }
+            } else if ("stats".equals(args.get(1))) {
+                StringBuilder sb = new StringBuilder();
+
+                sb.append(String.format("user : `%s` logged in at : `%s`\n", user.getName(), userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn()));
+                sb.append(String.format("user : `%s` has already worked `%s` today\n", user.getName(), DateUtil.getWorkedTime(userActivityRepository.findByDateTodayAndUser(user.getId()).getDateIn(), new Date())));
+                sb.append(String.format("user : `%s`, overtime: *%s*\n", user.getName(), DateUtil.calculateOverTime(userActivityRepository.findAllByUserAndDateInIsNotNullAndDateOutIsNotNull(user))));
+
+                sendMessage(slackChannel, sb.toString());
             }
         }
         
