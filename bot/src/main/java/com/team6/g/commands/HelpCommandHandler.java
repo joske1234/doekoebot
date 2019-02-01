@@ -20,6 +20,7 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("\n");
         sb.append("-- history --\n");
         sb.append("!history stats date <dd/MM/yyyy>\n");
+        sb.append("!history stats top\n");
         sb.append("!history stats\n");
         sb.append("\n");
         sb.append("-- words --\n");
