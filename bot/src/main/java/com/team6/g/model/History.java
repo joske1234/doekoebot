@@ -72,6 +72,9 @@ public class History {
         this.dateAdded = this.dateAdded = new Date();
     }
 
+    public Date getDateAdded() {
+        return dateAdded;
+    }
 
     public static final class HistoryBuilder {
         private User user;

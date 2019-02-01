@@ -18,4 +18,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 
     @Query("SELECT new com.team6.g.model.statistics.HistoryStatistics(h.user, count(h)) FROM History h GROUP BY h.user ORDER BY count(h) DESC")
     List<HistoryStatistics> findAllGroupByUser();
+
+    @Query("SELECT new com.team6.g.model.statistics.HistoryStatistics(count(h), h.dateAdded) FROM History h GROUP BY YEAR(h.dateAdded), MONTH(h.dateAdded), DAY(h.dateAdded) ORDER BY count(h) DESC")
+    List<HistoryStatistics> findAllGroupByDate();
 }

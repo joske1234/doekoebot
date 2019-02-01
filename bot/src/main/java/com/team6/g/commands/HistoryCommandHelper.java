@@ -36,6 +36,12 @@ public class HistoryCommandHelper extends AbstractCommand {
                     } else {
                         sendMessage(slackChannel, "nope, !history stats date <dd/MM/yyyy> or !history stats");
                     }
+
+                } else if (args.size() == 3) {
+                    // !history stats top
+                    if ("top".equals(args.get(2))) {
+                        handleStatsTopCommand(slackChannel);
+                    }
                 } else {
                     logger.info("acquiring history stats");
                     handleStatsCommand(slackChannel);
@@ -46,6 +52,25 @@ public class HistoryCommandHelper extends AbstractCommand {
         } else {
             sendMessage(slackChannel, "nope, !history stats date <dd/MM/yyyy> or !history stats");
         }
+    }
+
+    private void handleStatsTopCommand(SlackChannel slackChannel) {
+        List<HistoryStatistics> historyStatistics = historyRepository.findAllGroupByDate();
+        StringBuilder sb = new StringBuilder();
+
+        int i = 1;
+        for (HistoryStatistics historyStats : historyStatistics) {
+            if (i > 10) break;
+
+            int totalLinesByUser = historyRepository.findAllByDateAddedBetween(getStartOfDay(historyStats.getDate()), getEndOfDay(historyStats.getDate())).size();
+            HistoryStatistics userStats = historyRepository.findByDateBetweenAndGroup(getStartOfDay(historyStats.getDate()), getEndOfDay(historyStats.getDate())).get(0);
+            float percentage = ((float) userStats.getCount() / totalLinesByUser) * 100;
+
+            sb.append(topMessageFormatter(i, historyStats.getDate(), historyStats.getCount(), userStats.getUser(), totalLinesByUser, percentage));
+
+            i++;
+        }
+        sendMessage(slackChannel, sb.toString());
     }
 
     private void handleStatsCommand(SlackChannel slackChannel) {
@@ -82,6 +107,12 @@ public class HistoryCommandHelper extends AbstractCommand {
         sendMessage(slackChannel, String.format("total of `%d` messages (:nicom: #1 inc)", totalLinesInHistory));
     }
 
+    private String topMessageFormatter(Integer incr, Date date, Long count, User user, int totalLinesByUser, float percentage) {
+        SimpleDateFormat dateOnly = new SimpleDateFormat("dd/MM/yyyy");
+
+        return String.format("#_%d_ `%d` sentences said on `%s`. *%s* takes the lead with `%d` sentences (%.1f%%)\n", incr, count, dateOnly.format(date), user.getName(), totalLinesByUser, percentage);
+    }
+    
     private String messageFormatter(Integer incr, String user, Long count, float percentage) {
         return String.format("#_%d_ *%s* has said `%d` sentences (%.1f%%)\n", incr, user, count, percentage);
     }
