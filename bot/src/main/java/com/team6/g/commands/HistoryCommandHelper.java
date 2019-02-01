@@ -1,8 +1,10 @@
 package com.team6.g.commands;
 
+import com.team6.g.model.History;
 import com.team6.g.model.User;
 import com.team6.g.model.statistics.HistoryStatistics;
 import com.team6.g.repository.HistoryRepository;
+import com.team6.g.util.DateUtil;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -49,8 +51,24 @@ public class HistoryCommandHelper extends AbstractCommand {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        } else {
-            sendMessage(slackChannel, "nope, !history stats date <dd/MM/yyyy> or !history stats");
+        } else if ("export".equals(args.get(1))) {
+            // !history export 20/03/2018
+            SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyyy");
+            try {
+                Date date = parser.parse(args.get(2));
+
+                List<History> historyList = historyRepository.findAllByDateAddedBetween(DateUtil.atStartOfDay(date), DateUtil.atEndOfDay(date));
+
+                StringBuilder sb = new StringBuilder();
+
+                for (History hist : historyList) {
+                    sb.append(String.format("%s <%s> %s\n", new SimpleDateFormat("HH:mm:ss").format(hist.getDateAdded()), hist.getUser().getName(), hist.getMessage()));
+                }
+
+                slackConfig.slackSession().sendFile(slackChannel, sb.toString().getBytes(), args.get(2) + ".txt");
+            } catch (ParseException e) {
+                sendMessage(slackChannel, "invalid date string. dd/MM/yyyy");
+            }
         }
     }
 
