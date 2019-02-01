@@ -66,7 +66,7 @@ public class HistoryCommandHelper extends AbstractCommand {
             HistoryStatistics userStats = historyRepository.findByDateBetweenAndGroup(getStartOfDay(historyStats.getDate()), getEndOfDay(historyStats.getDate())).get(0);
             float percentage = ((float) userStats.getCount() / totalLinesByUser) * 100;
 
-            sb.append(topMessageFormatter(i, historyStats.getDate(), historyStats.getCount(), userStats.getUser(), totalLinesByUser, percentage));
+            sb.append(topMessageFormatter(i, historyStats.getDate(), historyStats.getCount(), userStats.getUser(), userStats.getCount(), percentage));
 
             i++;
         }
@@ -107,7 +107,7 @@ public class HistoryCommandHelper extends AbstractCommand {
         sendMessage(slackChannel, String.format("total of `%d` messages (:nicom: #1 inc)", totalLinesInHistory));
     }
 
-    private String topMessageFormatter(Integer incr, Date date, Long count, User user, int totalLinesByUser, float percentage) {
+    private String topMessageFormatter(Integer incr, Date date, Long count, User user, long totalLinesByUser, float percentage) {
         SimpleDateFormat dateOnly = new SimpleDateFormat("dd/MM/yyyy");
 
         return String.format("#_%d_ `%d` sentences said on `%s`. *%s* takes the lead with `%d` sentences (%.1f%%)\n", incr, count, dateOnly.format(date), user.getName(), totalLinesByUser, percentage);
