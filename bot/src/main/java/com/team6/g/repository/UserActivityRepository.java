@@ -23,5 +23,8 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
     @Query(value = "SELECT * FROM user_activity WHERE user_id = ?1 and date_added BETWEEN CURDATE() and DATE_ADD(CURDATE(), INTERVAL +1 DAY)", nativeQuery = true)
     UserActivity findByDateTodayAndUser(Long userId);
 
+    @Query(value = "SELECT * FROM user_activity WHERE user_id = ?1 and date_added BETWEEN ?2 and DATE_ADD(?2, INTERVAL +1 DAY)", nativeQuery = true)
+    UserActivity findByDateAndUser(Long userId, Date date);
+
     UserActivity findAllByDateAddedBetweenAndUser(Date start, Date end, User user);
 }
