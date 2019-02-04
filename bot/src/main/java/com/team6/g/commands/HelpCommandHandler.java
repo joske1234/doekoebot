@@ -22,7 +22,7 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("!history stats date <dd/MM/yyyy>\n");
         sb.append("!history stats top\n");
         sb.append("!history stats\n");
-        sb.append("!history export <date>\n");
+        sb.append("!history export <dd/MM/yyyy>\n");
         sb.append("\n");
         sb.append("-- words --\n");
         sb.append("!word stats top <0-25>\n");
@@ -35,10 +35,10 @@ public class HelpCommandHandler extends AbstractCommand {
         sb.append("-- timesheet --\n");
         sb.append("!timesheet logintime <user>\n");
         sb.append("!timesheet workedtime <user>\n");
-        sb.append("!timesheet workedtime date <date>\n");
+        sb.append("!timesheet workedtime date <dd/MM/yyyy>\n");
         sb.append("!timesheet overtime <user>\n");
         sb.append("!timesheet stats <user>\n");
-        sb.append("!timesheet edit <logintime|logouttime> <date>\n");
+        sb.append("!timesheet edit <logintime|logouttime> <HH:mm:ss>\n");
                 
         sendMessage(slackChannel, sb.toString());
     }
